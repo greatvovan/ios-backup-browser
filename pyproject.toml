@@ -1,0 +1,15 @@
+[project]
+name = "ios-backup-browser"
+version = "0.1.0"
+description = "Browser and exporter for iOS backups"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
