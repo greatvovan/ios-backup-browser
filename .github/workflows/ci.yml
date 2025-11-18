@@ -54,7 +54,7 @@ jobs:
 
       - name: Publish JUnit results as PR check
         if: always()
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         with:
           name: pytest
           path: test-results/junit.xml
