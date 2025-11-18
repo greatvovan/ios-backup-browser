@@ -19,10 +19,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-    #   - name: Set up Python
-    #     uses: actions/setup-python@v4
-    #     with:
-    #       python-version: '3.14'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.14'
 
     #   - name: Cache pip
     #     uses: actions/cache@v4
@@ -42,9 +42,9 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
-      - name: Install Python 3.14
-        run: uv python install 3.14
-      - name: Install Python 3.14
+    #   - name: Install Python 3.14
+    #     run: uv python install 3.14
+      - name: Install dependencies
         run: uv sync
 
       - name: Run tests (generate JUnit XML)
