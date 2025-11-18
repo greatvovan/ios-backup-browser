@@ -60,7 +60,7 @@ jobs:
           report-title: Unit tests
           path: test-results/junit.xml
           reporter: jest-junit
-          fail-on-error: 'false'
+        #   fail-on-error: 'false'
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
