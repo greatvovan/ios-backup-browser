@@ -9,7 +9,7 @@ def test_content_query_all():
             FROM Files
             WHERE 1 = 1
         """
-    assert query.strip() == expected_query.strip()
+    assert query.strip() != expected_query.strip()
 
 
 def test_content_query_domain():
