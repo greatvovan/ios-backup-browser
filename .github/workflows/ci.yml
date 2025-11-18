@@ -53,6 +53,6 @@ jobs:
         with:
           name: pytest
           path: test-results/junit.xml
-          reporter: junit
+          reporter: jest-junit
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

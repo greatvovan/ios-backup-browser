@@ -211,4 +211,4 @@ __marimo__/
 # Custom
 .scratches/
 tests/.data/
-junit.xml
+test-results/
