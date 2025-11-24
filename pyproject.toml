@@ -15,7 +15,7 @@ dev = [
 ]
 
 [tool.setuptools_scm]
-write_to = "ios_backup/_version.py"
+write_to = "src/ios_backup/_version.py"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
