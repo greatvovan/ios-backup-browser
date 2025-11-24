@@ -1,5 +1,4 @@
-# ios-backup-browser
-iOS backup browser and exporter
+# iOS backup browser and exporter
 
 This module allows you to esilly access non-encrypted iOS backups from your Python scripts or export the backup to your computer for easy browsing of its content. The module has command-line interface for basic use cases and API
 for more advanced use cases. The module is pure Python and has no dependencies.
@@ -18,7 +17,12 @@ content, they use Apple's private API that can be discontinued at any point.
 
 ### Export entire backup
 
-`% python -m ios_backup export --backup-path iosbackup --output-path exportpath --restore-modified-dates`
+```bash
+% python -m ios_backup export \
+  --backup-path iosbackup \
+  --output-path exportpath \
+  --restore-modified-dates
+```
 
 ### Export specific content using filters
 
@@ -37,9 +41,10 @@ If you need to export only specific content, you can achive that with filtering 
 `% ... --domain-prefix AppDomain --namespace-prefix com.mojang.minecraftpe --path-prefix Documents/games/com.mojang/minecraftWorlds`
 
 ### Options
-- `--ignore-missing` – do not fail on missing files (those defined in the
+`--ignore-missing` – do not fail on missing files (those defined in the
 database, but not present in the backup). Useful for incomplete or corrupted backups.
-- `--restore-modified-dates` – restore dates and times of files as they were on
+
+`--restore-modified-dates` – restore dates and times of files as they were on
 the original device. 
 
 ## Advanced usage
