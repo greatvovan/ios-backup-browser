@@ -130,6 +130,6 @@ some functions of
 project (such as `idevicebackup2 unback`)
 [stopped working](https://github.com/libimobiledevice/libimobiledevice/issues/1439) on most backups.
 While this module does not provide 100% equivalemnt of `unback()`'s output,
-it does a honest export of entire backup content and will suit for cases
+it does an honest export of entire backup content and will suit for cases
 when you need to browse the content or simply extract photos, videos, or other
 applications' files.
