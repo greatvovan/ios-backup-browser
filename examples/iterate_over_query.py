@@ -7,17 +7,18 @@ db = backup.db
 
 # Process all iMessage attachments.
 query = """
-select * from Files
-where domain = 'MediaDomain' and relativePath like 'Library/SMS/Attachments/%'
-  and (relativePath like '%.jpg'
-    or relativePath like '%.jpeg'
-    or relativePath like '%.heic'
-    or relativePath like '%.png'
-    or relativePath like '%.gif'
-    or relativePath like '%.tiff'
-    or relativePath like '%.psd'
-    or relativePath like '%.mov')
+    select * from Files
+    where domain = 'MediaDomain' and relativePath like 'Library/SMS/Attachments/%'
+      and (relativePath like '%.jpg'
+        or relativePath like '%.jpeg'
+        or relativePath like '%.heic'
+        or relativePath like '%.png'
+        or relativePath like '%.gif'
+        or relativePath like '%.tiff'
+        or relativePath like '%.psd'
+        or relativePath like '%.mov')
 """
+db.simple_query('PRAGMA case_sensitive_like = false')
 rows = db.buffered_query(query)
 
 for record in Backup.parse(rows):

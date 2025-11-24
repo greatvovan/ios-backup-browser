@@ -7,8 +7,8 @@ db = backup.db
 
 # Export all videos.
 query = """
-select * from Files
-where domain = 'CameraRollDomain' and relativePath like 'Media/DCIM/%.MOV'
+    select * from Files
+    where domain = 'CameraRollDomain' and relativePath like 'Media/DCIM/%.MOV'
 """
 
 content = Backup.parse(db.buffered_query(query), parse_metadata=True)

@@ -63,8 +63,8 @@ Export content based on a specific query:
 ```python
 # Export all videos.
 query = """
-select * from Files
-where domain = 'CameraRollDomain' and relativePath like 'Media/DCIM/%.MOV'
+    select * from Files
+    where domain = 'CameraRollDomain' and relativePath like 'Media/DCIM/%.MOV'
 """
 
 content = Backup.parse(db.buffered_query(query), parse_metadata=True)
@@ -76,16 +76,17 @@ Process specific files based on query:
 ```python
 # Process all iMessage attachments.
 query = """
-select * from Files
-where domain = 'MediaDomain' and relativePath like 'Library/SMS/Attachments/%'
-  and (relativePath like '%.jpg'
-    or relativePath like '%.jpeg'
-    or relativePath like '%.heic'
-    or relativePath like '%.png'
-    or relativePath like '%.gif'
-    or relativePath like '%.tiff'
-    or relativePath like '%.psd'
-    or relativePath like '%.mov')
+    select * from Files
+    where domain = 'MediaDomain'
+      and relativePath like 'Library/SMS/Attachments/%'
+      and (relativePath like '%.jpg'
+        or relativePath like '%.jpeg'
+        or relativePath like '%.heic'
+        or relativePath like '%.png'
+        or relativePath like '%.gif'
+        or relativePath like '%.tiff'
+        or relativePath like '%.psd'
+        or relativePath like '%.mov')
 """
 rows = db.buffered_query(query)
 
