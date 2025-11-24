@@ -12,9 +12,9 @@ content, they use Apple's private API that can be discontinued at any point.
 
 ### Installation
 
-`% pip install ios-backup-browser`
-`% python -m ios_backup --version`
-`% python -m ios_backup --help`
+`% pip install ios-backup-browser`  
+`% python -m ios_backup --version`  
+`% python -m ios_backup --help`  
 
 ### Export entire backup
 
