@@ -28,7 +28,7 @@ jobs:
         uses: astral-sh/setup-uv@v6
 
       - name: Misc
-        run: uv pip install setuptools-scm
+        run: uv pip install --system setuptools-scm
 
       - name: Debug scm
         run: python -m setuptools_scm
