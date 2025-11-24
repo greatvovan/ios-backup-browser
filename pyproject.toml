@@ -19,6 +19,7 @@ requires = ["setuptools>=80", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
+fallback_version = "0.0.0"
 version_file = "src/ios_backup/_version.py"
 
 [tool.pytest.ini_options]
