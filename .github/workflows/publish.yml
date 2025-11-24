@@ -12,7 +12,7 @@ jobs:
     environment:
       name: pypi
     env:
-      SETUPTOOLS_SCM_OVERRIDES_FOR_IOS_BACKUP_BROWSER: '{"local_scheme": "no-local-version"}'
+      SETUPTOOLS_SCM_OVERRIDES_FOR_IOS_BACKUP_BROWSER: '{local_scheme="no-local-version"}'
 
     permissions:
       id-token: write

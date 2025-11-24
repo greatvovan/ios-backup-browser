@@ -15,7 +15,8 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools_scm>=8"]
+requires = ["setuptools>=80", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 version_file = "src/ios_backup/_version.py"
