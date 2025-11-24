@@ -4,6 +4,7 @@ description = "Browser and exporter for iOS backups"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
+dynamic = ["version"]
 
 [project.urls]
 Homepage = "https://github.com/greatvovan/ios-backup-browser"
