@@ -37,10 +37,9 @@ If you need to export only specific content, you can achive that with filtering 
 `% ... --domain-prefix AppDomain --namespace-prefix com.mojang.minecraftpe --path-prefix Documents/games/com.mojang/minecraftWorlds`
 
 ### Options
-`--ignore-missing` – do not fail on missing files (those defined in the
+- `--ignore-missing` – do not fail on missing files (those defined in the
 database, but not present in the backup). Useful for incomplete or corrupted backups.
-
-`--restore-modified-dates` – restore dates and times of files as they were on
+- `--restore-modified-dates` – restore dates and times of files as they were on
 the original device. 
 
 ## Advanced usage
@@ -61,7 +60,7 @@ db = backup.db
 
 Export content based on a specific query:
 
-```
+```python
 # Export all videos.
 query = """
 select * from Files
@@ -74,7 +73,7 @@ backup.export(content, 'tests/.data/exported_videos', restore_modified_dates=Tru
 
 Process specific files based on query:
 
-```
+```python
 # Process all iMessage attachments.
 query = """
 select * from Files
