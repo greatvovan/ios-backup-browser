@@ -27,8 +27,14 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
 
+      - name: Misc
+        run: uv pip install setuptools-scm
+
+      - name: Debug scm
+        run: python -m setuptools_scm
+
       - name: Build
         run: uv build
 
-      - name: Publish
-        run: uv publish
+      # - name: Publish
+      #   run: uv publish
