@@ -1,20 +1,28 @@
 import logging
 import argparse
 from .backup import Backup
+from ._version import __version__
 
 
 def build_parser():
     parser = argparse.ArgumentParser(description="iOS Backup Browser")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"ios_backup {__version__}",
+        help="Show the version number and exit"
+    )
+
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     parser_export = subparsers.add_parser("export", help="Export files from iOS backup")
-    parser_export.add_argument("--backup-path", type=str, help="Path to the iOS backup directory")
-    parser_export.add_argument("--output-path", type=str, help="Path to export files to")
-    parser_export.add_argument("--domain-prefix", type=str, help="Filter by domain prefix")
-    parser_export.add_argument("--namespace-prefix", type=str, help="Filter by namespace")
-    parser_export.add_argument("--path-prefix", type=str, help="Filter by path prefix")
+    parser_export.add_argument("--backup-path", type=str, help="Path to the iOS backup directory", metavar="path")
+    parser_export.add_argument("--output-path", type=str, help="Path to export files", metavar="path")
+    parser_export.add_argument("--domain", type=str, help="Filter by domain prefix", metavar="prefix")
+    parser_export.add_argument("--namespace", type=str, help="Filter by namespace", metavar="prefix")
+    parser_export.add_argument("--path", type=str, help="Filter by device path prefix", metavar="prefix")
     parser_export.add_argument("--ignore-missing", action="store_true", help="Ignore missing files during export")
-    parser_export.add_argument("--restore-modified-dates", action="store_true", help="Restore modified dates")
+    parser_export.add_argument("--restore-dates", action="store_true", help="Restore modified dates")
     parser_export.set_defaults(func=export_handler)
 
     return parser

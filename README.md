@@ -21,9 +21,9 @@ Syntax:
 python -m ios_backup export \
   --backup-path <iosbackup/path> \
   --output-path <export/path> \
-  [--domain-prefix <domain>] \
-  [--namespace-prefix <namespace>] \
-  [--path-prefix <device/path>] \
+  [--domain <domain>] \
+  [--namespace <namespace>] \
+  [--path <device/path>] \
   [--restore-modified-dates]
   [--ignore-missing]
 ```
@@ -35,7 +35,7 @@ python -m ios_backup export \
 % python -m ios_backup export \
   --backup-path iosbackup/path \
   --output-path export/path \
-  --restore-modified-dates
+  --restore-dates
 ```
 
 ### Filtering
@@ -52,13 +52,15 @@ When exporting the backup, these attributes form a directory tree with layers in
 
 If you need to export only specific content, you can achive that with filtering keys:
 
-`% ... --domain-prefix AppDomain --namespace-prefix com.mojang.minecraftpe --path-prefix Documents/games/com.mojang/minecraftWorlds`
+`% ... --domain AppDomain --namespace com.mojang.minecraftpe --path Documents/games/com.mojang/minecraftWorlds`
+
+All values are interpreted as prefixes, full match is not required.
 
 ### Other options
 `--ignore-missing` – do not fail on missing files (those defined in the
 database, but not present in the backup). Useful for incomplete or corrupted backups.
 
-`--restore-modified-dates` – restore dates and times of files as they were on
+`--restore-dates` – restore dates and times of files as they were on
 the original device. 
 
 ## Advanced usage

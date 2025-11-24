@@ -1,10 +1,10 @@
 [project]
 name = "ios-backup-browser"
-version = "0.1.0"
 description = "Browser and exporter for iOS backups"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
+dynamic = ["version"]
 
 [project.urls]
 Homepage = "https://github.com/greatvovan/ios-backup-browser"
@@ -13,6 +13,9 @@ Homepage = "https://github.com/greatvovan/ios-backup-browser"
 dev = [
     "pytest>=9.0.0",
 ]
+
+[tool.setuptools_scm]
+write_to = "ios_backup/_version.py"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
