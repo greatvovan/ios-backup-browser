@@ -14,8 +14,11 @@ dev = [
     "pytest>=9.0.0",
 ]
 
+[build-system]
+requires = ["setuptools_scm>=8"]
+
 [tool.setuptools_scm]
-write_to = "src/ios_backup/_version.py"
+version_file = "src/ios_backup/_version.py"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
