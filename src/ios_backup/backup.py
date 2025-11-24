@@ -33,13 +33,13 @@ class Record:
 
 class Backup:
     def __init__(self, backup_path: str):
-        self.backup_path = Path(backup_path)
+        self.base_path = Path(backup_path)
         self._db: BackupDB | None = None
     
     @property
     def db(self) -> BackupDB:
         if self._db is None:
-            self._db = BackupDB(f"{self.backup_path}/Manifest.db")
+            self._db = BackupDB(f"{self.base_path}/Manifest.db")
         return self._db
     
     @cache
@@ -101,7 +101,7 @@ class Backup:
                 dest_path.mkdir(parents=True, exist_ok=True)
 
             elif record.type in ("file", "symlink"):
-                src_path = Path(self.backup_path) / self.get_src_path(record.file_id)
+                src_path = Path(self.base_path) / self.get_src_path(record.file_id)
                 if not src_path.exists():
                     if ignore_missing:
                         continue
@@ -138,7 +138,7 @@ class Backup:
     
     def _read_plist(self, sub_path) -> dict:
         """Read and return a plist file from the backup."""
-        plist_path = self.backup_path / sub_path
+        plist_path = self.base_path / sub_path
         with plist_path.open("rb") as f:
             return plistlib.load(f)
     
@@ -162,7 +162,20 @@ class Backup:
         if self._db:
             self._db.close()
 
-    def get_file(self, domain: str, relative_path: str) -> Path:
+    def get_file_by_id(self, file_id: str) -> Path:
+        """
+        Get pathlib.Path object for a specific file in the backup by its file ID.
+        This method bypasses the manifest database,
+        hence will work with corrupted or incomplete backups.
+        """
+        source_path = self.base_path / self.get_src_path(file_id)
+
+        if not source_path.exists():
+            raise FileNotFoundError(f"File not found in backup: {file_id}")
+        
+        return source_path
+    
+    def get_file_by_path(self, domain: str, relative_path: str) -> Path:
         """
         Get pathlib.Path object for a specific file in the backup.
         Useful if you know exact domain and relative path.
@@ -171,9 +184,5 @@ class Backup:
         """
         namespaced_path = f"{domain}-{relative_path}"
         file_id = hashlib.sha1(namespaced_path.encode()).hexdigest()
-        source_path = self.backup_path / self.get_src_path(file_id)
 
-        if not source_path.exists():
-            raise FileNotFoundError(f"File not found in backup: {domain}/{relative_path}")
-        
-        return source_path
+        return self.get_file_by_id(file_id)

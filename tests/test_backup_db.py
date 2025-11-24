@@ -50,6 +50,16 @@ class TestBackupDB:
         with pytest.raises(FileNotFoundError):
             BackupDB("nonexistent.db")
 
+    def test_simple_query(self, sample_db):
+        """Test simple query execution."""
+        db = BackupDB(sample_db)
+        results = db.simple_query("SELECT * FROM Files ORDER BY fileID")
+        assert isinstance(results, list)
+        assert len(results) == len(SAMPLE_DATA)
+        assert results[0][0] == 'file1'  # Check first record
+        assert results[-1][0] == 'file4'  # Check last record
+        db.close()
+
     def test_buffered_query(self, sample_db):
         """Test buffered query execution with small buffer size."""
         db = BackupDB(sample_db)
