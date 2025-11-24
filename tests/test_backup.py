@@ -62,7 +62,7 @@ def test_get_file_found_and_not_found(tmp_path):
     b = Backup(str(backup_dir))
 
     try:
-        found = b.get_file(domain, rel_path)
+        found = b.get_file_by_path(domain, rel_path)
         assert found.exists()
         assert found.read_bytes() == b"data"
 
@@ -72,7 +72,7 @@ def test_get_file_found_and_not_found(tmp_path):
 
         import pytest
         with pytest.raises(FileNotFoundError):
-            missing_backup.get_file(domain, rel_path)
+            missing_backup.get_file_by_path(domain, rel_path)
     finally:
         missing_backup.close()
 

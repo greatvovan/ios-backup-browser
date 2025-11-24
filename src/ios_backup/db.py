@@ -61,6 +61,12 @@ class BackupDB:
         
         self.conn = sqlite3.connect(db_path)
     
+    def simple_query(self, query: str) -> list[tuple]:
+        """Execute a simple SQL query and return all results."""
+        cursor = self.conn.cursor()
+        cursor.execute(query)
+        return cursor.fetchall()
+    
     def buffered_query(self, query: str, buffer_size: int = 1000) -> Iterable[tuple]:
         """Execute the given SQL query and yield results in buffered chunks."""
         cursor = self.conn.cursor()
