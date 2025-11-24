@@ -20,5 +20,8 @@ requires = ["setuptools_scm>=8"]
 [tool.setuptools_scm]
 version_file = "src/ios_backup/_version.py"
 
+[tool.uv]
+reinstall-package = ["ios-backup-browser"]
+
 [tool.pytest.ini_options]
 pythonpath = ["src"]
