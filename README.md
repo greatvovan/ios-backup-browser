@@ -15,16 +15,30 @@ content, they use Apple's private API that can be discontinued at any point.
 `% python -m ios_backup --version`  
 `% python -m ios_backup --help`  
 
+Syntax:
+
+```bash
+python -m ios_backup export \
+  --backup-path <iosbackup/path> \
+  --output-path <export/path> \
+  [--domain-prefix <domain>] \
+  [--namespace-prefix <namespace>] \
+  [--path-prefix <device/path>] \
+  [--restore-modified-dates]
+  [--ignore-missing]
+```
+
+
 ### Export entire backup
 
 ```bash
 % python -m ios_backup export \
-  --backup-path iosbackup \
-  --output-path exportpath \
+  --backup-path iosbackup/path \
+  --output-path export/path \
   --restore-modified-dates
 ```
 
-### Export specific content using filters
+### Filtering
 
 Each file in an iOS backup has the following attributes:
 
@@ -40,7 +54,7 @@ If you need to export only specific content, you can achive that with filtering 
 
 `% ... --domain-prefix AppDomain --namespace-prefix com.mojang.minecraftpe --path-prefix Documents/games/com.mojang/minecraftWorlds`
 
-### Options
+### Other options
 `--ignore-missing` – do not fail on missing files (those defined in the
 database, but not present in the backup). Useful for incomplete or corrupted backups.
 
