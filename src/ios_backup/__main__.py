@@ -1,10 +1,18 @@
 import logging
 import argparse
 from .backup import Backup
+from ._version import __version__
 
 
 def build_parser():
     parser = argparse.ArgumentParser(description="iOS Backup Browser")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"ios_backup {__version__}",
+        help="Show the version number and exit"
+    )
+
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     parser_export = subparsers.add_parser("export", help="Export files from iOS backup")
