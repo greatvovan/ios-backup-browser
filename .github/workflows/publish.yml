@@ -21,8 +21,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0   # required for setuptools_scm
+        # with:
+        #   fetch-depth: 0   # required for setuptools_scm
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
@@ -32,6 +32,10 @@ jobs:
 
       - name: Debug scm
         run: python -m setuptools_scm
+
+        # A workaround for uv<->setuptools_scm failing to produce correct version
+      - name: Save version
+        run: echo "SETUPTOOLS_SCM_PRETEND_VERSION=$(python -m setuptools_scm)" >> $GITHUB_ENV
 
       - name: Build
         run: uv build
