@@ -79,6 +79,7 @@ class Backup:
     
     def export(self, content: Iterable[Record], path: str,
                ignore_missing: bool = False, restore_modified_dates: bool = False,
+               restore_symlinks: bool = False,
                total_count: int | None = None) -> None:
         """Export the given content records to the specified path."""
         export_path = Path(path)
@@ -137,7 +138,10 @@ class Backup:
         return False
     
     def _read_plist(self, sub_path) -> dict:
-        """Read and return a plist file from the backup."""
+        """
+        Read and return a plist file from the backup.
+        The library auto-detects the format (XML or binary).
+        """
         plist_path = self.base_path / sub_path
         with plist_path.open("rb") as f:
             return plistlib.load(f)

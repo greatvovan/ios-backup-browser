@@ -16,13 +16,14 @@ def build_parser():
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     parser_export = subparsers.add_parser("export", help="Export files from iOS backup")
-    parser_export.add_argument("--backup-path", type=str, help="Path to the iOS backup directory", metavar="path")
-    parser_export.add_argument("--output-path", type=str, help="Path to export files", metavar="path")
+    parser_export.add_argument("backup_path", type=str, help="Path to the iOS backup directory")
+    parser_export.add_argument("output_path", type=str, help="Path to export files")
     parser_export.add_argument("--domain", type=str, help="Filter by domain prefix", metavar="prefix")
     parser_export.add_argument("--namespace", type=str, help="Filter by namespace", metavar="prefix")
     parser_export.add_argument("--path", type=str, help="Filter by device path prefix", metavar="prefix")
     parser_export.add_argument("--ignore-missing", action="store_true", help="Ignore missing files during export")
     parser_export.add_argument("--restore-dates", action="store_true", help="Restore modified dates")
+    parser_export.add_argument("--restore-symlinks", action="store_true", help="Restore symlbolic links")
     parser_export.set_defaults(func=export_handler)
 
     return parser
@@ -30,17 +31,18 @@ def build_parser():
 
 def export_handler(args):
     if not args.backup_path or not args.output_path:
-        logging.error("Both --backup-path and --output-path are required for export command.")
+        logging.error("Both backup_path and output_path are required for export command.")
         exit(1)
     
     export(
         args.backup_path,
         args.output_path,
-        args.domain_prefix or "",
-        args.namespace_prefix or "",
-        args.path_prefix or "",
+        args.domain or "",
+        args.namespace or "",
+        args.path or "",
         args.ignore_missing,
-        args.restore_modified_dates
+        args.restore_dates,
+        args.restore_symlinks,
     )
     
 def export(
@@ -50,13 +52,14 @@ def export(
         namespace_prefix: str,
         path_prefix: str,
         ignore_missing: bool = True,
-        restore_modified_dates: bool = True,
+        restore_modified_dates: bool = False,
+        restore_symlinks: bool = False,
     ) -> None:
     backup = Backup(backup_path)
     content = backup.get_content(domain_prefix, namespace_prefix,
                                  path_prefix, parse_metadata=restore_modified_dates)
     content_count = backup.get_content_count(domain_prefix, namespace_prefix, path_prefix)
-    backup.export(content, output_path, ignore_missing, restore_modified_dates, content_count)
+    backup.export(content, output_path, ignore_missing, restore_modified_dates, restore_symlinks, content_count)
     backup.close()
     logging.info(f"{content_count} entries processed")
 
