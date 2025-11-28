@@ -28,6 +28,10 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
+      - run: uv run python -m ios_backup export tests/data/sample_backup exported_backup --restore-symlinks --restore-dates
+
+      - run: lm -s exported_backup/test pyproject.toml
+
       - name: Run tests (generate JUnit XML)
         continue-on-error: true
         run: |
