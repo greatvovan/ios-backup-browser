@@ -34,7 +34,7 @@ wheels = [
 
 [[package]]
 name = "ios-backup-browser"
-source = { virtual = "." }
+source = { editable = "." }
 
 [package.dev-dependencies]
 dev = [
