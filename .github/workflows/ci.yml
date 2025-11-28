@@ -42,6 +42,8 @@ jobs:
           mkdir -p test-results
           uv run pytest -q --junitxml=test-results/junit.xml
 
+      - run: ls -la /tmp/pytest-of-runner/pytest-1/test_export_real_backup0/exported/DatabaseDomain/timezone/localtime
+
       - name: Upload test-results artifact
         if: always()
         uses: actions/upload-artifact@v4
