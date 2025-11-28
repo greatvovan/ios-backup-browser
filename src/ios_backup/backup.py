@@ -123,7 +123,7 @@ class Backup:
                         # Postpone setting directory mtime until all files are created.
                         directories_created.append((dest_path, mtime))
                     else:
-                        os.utime(dest_path, (mtime, mtime))
+                        os.utime(dest_path, (mtime, mtime), follow_symlinks=False)
                 except Exception:
                     logging.warning(f"Failed to restore modified date for {dest_path}")
         

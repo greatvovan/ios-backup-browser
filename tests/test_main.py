@@ -69,7 +69,7 @@ def test_export_real_backup(tmp_path):
            domain_prefix='', namespace_prefix='', path_prefix='',
            ignore_missing=False, restore_modified_dates=True, restore_symlinks=True)
 
-    # Verify some expected files were exported
+    # Verify that expected entries were exported.
     expected_items = [
         {
             'type': 'directory',
@@ -122,6 +122,6 @@ def test_export_real_backup(tmp_path):
 
         elif item['type'] == 'symlink':
             dst = export_path / item['dst']
-            assert dst.exists() and dst.is_symlink(), f"Expected exported symlink {dst} does not exist."
+            assert dst.exists(follow_symlinks=False) and dst.is_symlink(), f"Expected exported symlink {dst} does not exist."
             if item['mtime']:
                 assert dst.stat().st_mtime == item['mtime']
