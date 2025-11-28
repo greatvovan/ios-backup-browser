@@ -124,4 +124,4 @@ def test_export_real_backup(tmp_path):
             dst = export_path / item['dst']
             assert dst.exists(follow_symlinks=False) and dst.is_symlink(), f"Expected exported symlink {dst} does not exist."
             if item['mtime']:
-                assert dst.stat().st_mtime == item['mtime']
+                assert dst.stat(follow_symlinks=False).st_mtime == item['mtime']
