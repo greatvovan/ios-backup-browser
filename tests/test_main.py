@@ -58,3 +58,70 @@ def test_cli_arguments(monkeypatch, tmp_path):
     assert captured['ignore_missing'] is True
     assert captured['restore_modified_dates'] is True
     assert captured['restore_symlinks'] is True
+
+
+def test_export_real_backup(tmp_path):
+    """Test export function with a real backup structure and plist files."""
+
+    export_path = tmp_path / 'exported'
+
+    export('tests/data/sample_backup', str(export_path),
+           domain_prefix='', namespace_prefix='', path_prefix='',
+           ignore_missing=False, restore_modified_dates=True, restore_symlinks=True)
+
+    # Verify that expected entries were exported.
+    expected_items = [
+        {
+            'type': 'directory',
+            'dst': 'AppDomain/com.google.Translate',
+            'mtime': 1631511118,
+        },
+        {
+            'type': 'directory',
+            'dst': 'AppDomain/com.google.Translate/Documents',
+            'mtime': 1634003864,
+        },
+        {
+            'type': 'directory',
+            'dst': 'AppDomain/com.google.Translate/Library',
+            'mtime': 1631511122,
+        },
+        {
+            'type': 'directory',
+            'dst': 'AppDomain/com.google.Translate/Library/Preferences',
+            'mtime': 1682109153,
+        },
+        {
+            'type': 'file',
+            'src': 'tests/data/sample_backup/12/12e90d5b620bbdeaaa88de34607ebf880fa708f5',
+            'dst': 'AppDomain/com.google.Translate/Library/Preferences/com.google.Translate.plist',
+            'mtime': 1682109153,
+        },
+        {
+            'type': 'symlink',
+            'dst': 'DatabaseDomain/timezone/localtime',
+            'target': '',
+            'mtime': 1687838382,
+        },
+    ]
+
+    for item in expected_items:
+        if item['type'] == 'directory':
+            dst = export_path / item['dst']
+            assert dst.exists() and dst.is_dir(), f"Expected exported directory {dst} does not exist."  
+            if item['mtime']:
+                assert dst.stat().st_mtime == item['mtime']
+
+        elif item['type'] == 'file':
+            src = Path(item['src'])
+            dst = export_path / item['dst']
+            assert dst.exists() and dst.is_file(), f"Expected exported file {dst} does not exist."
+            assert dst.read_bytes() == src.read_bytes(), f"Exported file {dst} content mismatch."
+            if item['mtime']:
+                assert dst.stat().st_mtime == item['mtime']
+
+        elif item['type'] == 'symlink':
+            dst = export_path / item['dst']
+            assert dst.exists(follow_symlinks=False) and dst.is_symlink(), f"Expected exported symlink {dst} does not exist."
+            if item['mtime']:
+                assert dst.stat(follow_symlinks=False).st_mtime == item['mtime']
