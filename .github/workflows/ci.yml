@@ -30,7 +30,9 @@ jobs:
 
       - run: uv run python -m ios_backup export tests/data/sample_backup exported_backup --restore-symlinks --restore-dates
 
-      - run: lm -s exported_backup/test pyproject.toml
+      - run: ln -s exported_backup/test pyproject.toml
+
+      - run: ls -la exported_backup
 
       - name: Run tests (generate JUnit XML)
         continue-on-error: true
