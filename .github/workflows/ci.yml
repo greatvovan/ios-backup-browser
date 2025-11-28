@@ -28,13 +28,13 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - run: uv run python -m ios_backup export tests/data/sample_backup /tmp/exported_backup --restore-symlinks --restore-dates
+      - run: uv run python -m ios_backup export tests/data/sample_backup /tmp/pytest-of-runner/pytest-0/test_export_real_backup0/exported/ --restore-symlinks --restore-dates
 
-      - run: ln -s pyproject.toml /tmp/exported_backup/test
-      - run: ln -s /var/test /tmp/exported_backup/test2
+      - run: ln -s pyproject.toml /tmp/pytest-of-runner/pytest-0/test_export_real_backup0/exported/test
+      - run: ln -s /var/test /tmp/pytest-of-runner/pytest-0/test_export_real_backup0/exported/test2
 
-      - run: ls -la /tmp/exported_backup
-      - run: ls -la /tmp/exported_backup/DatabaseDomain/timezone
+      - run: ls -la /tmp/pytest-of-runner/pytest-0/test_export_real_backup0/exported/
+      - run: ls -la /tmp/pytest-of-runner/pytest-0/test_export_real_backup0/exported/DatabaseDomain/timezone
 
       - name: Run tests (generate JUnit XML)
         continue-on-error: true
