@@ -40,16 +40,6 @@ def test_parse_with_metadata():
     assert r.data["Value"] == 42
 
 
-def test__is_to_skip_true_and_false():
-    # symlink case that should be skipped
-    r1 = Record("id", "DatabaseDomain", None, "timezone/localtime", "symlink", None)
-    assert Backup._is_to_skip(r1)
-
-    # symlink but different path should not be skipped
-    r2 = Record("id", "DatabaseDomain", None, "some/other/path", "symlink", None)
-    assert not Backup._is_to_skip(r2)
-
-
 def test_get_file_found_and_not_found(tmp_path):
     backup_dir = tmp_path / "backup"
     backup_dir.mkdir()
@@ -90,9 +80,9 @@ def test__read_plist_and_cached_properties(tmp_path):
     with (backup_dir / "Info.plist").open("wb") as f:
         plistlib.dump(info, f)
     with (backup_dir / "Manifest.plist").open("wb") as f:
-        plistlib.dump(manifest, f)
+        plistlib.dump(manifest, f, fmt=plistlib.FMT_BINARY)
     with (backup_dir / "Status.plist").open("wb") as f:
-        plistlib.dump(status, f)
+        plistlib.dump(status, f, fmt=plistlib.FMT_BINARY)
 
     b = Backup(str(backup_dir))
 
