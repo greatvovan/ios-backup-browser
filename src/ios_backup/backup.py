@@ -110,7 +110,7 @@ class Backup:
                 dest_path.parent.mkdir(parents=True, exist_ok=True)
                 src_path.copy(dest_path)
             
-            elif record.type == "symlink":
+            elif record.type == "symlink" and restore_symlinks:
                 dest_path.parent.mkdir(parents=True, exist_ok=True)
                 index = record.data['$objects'][1]['Target'].data
                 link_target = record.data['$objects'][index]
