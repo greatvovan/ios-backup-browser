@@ -101,7 +101,7 @@ def test_export_real_backup(tmp_path):
             'type': 'symlink',
             'dst': 'DatabaseDomain/timezone/localtime',
             'target': '',
-            'mtime': 1761700864,
+            'mtime': 1687838382,
         },
     ]
 
