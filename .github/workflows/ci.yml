@@ -28,13 +28,13 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - run: uv run python -m ios_backup export tests/data/sample_backup exported_backup --restore-symlinks --restore-dates
+      - run: uv run python -m ios_backup export tests/data/sample_backup /tmp/exported_backup --restore-symlinks --restore-dates
 
-      - run: ln -s pyproject.toml exported_backup/test
-      - run: ln -s /var/test exported_backup/test2
+      - run: ln -s pyproject.toml /tmp/exported_backup/test
+      - run: ln -s /var/test /tmp/exported_backup/test2
 
-      - run: ls -la exported_backup
-      - run: ls -la exported_backup/DatabaseDomain/timezone
+      - run: ls -la /tmp/exported_backup
+      - run: ls -la /tmp/exported_backup/DatabaseDomain/timezone
 
       - name: Run tests (generate JUnit XML)
         continue-on-error: true
