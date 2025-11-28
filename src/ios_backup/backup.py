@@ -92,50 +92,52 @@ class Backup:
             except ImportError:
                 pass
 
+        directories_created = []
+
         for record in content:
             dest_path = export_path / record.domain / record.subdomain / record.relative_path
-
-            if self._is_to_skip(record):
-                continue
 
             if record.type == "directory":
                 dest_path.mkdir(parents=True, exist_ok=True)
 
-            elif record.type in ("file", "symlink"):
+            elif record.type == "file":
                 src_path = Path(self.base_path) / self.get_src_path(record.file_id)
                 if not src_path.exists():
                     if ignore_missing:
                         continue
                     else:
                         raise FileNotFoundError(f"Source file not found: {src_path}")
-                
                 dest_path.parent.mkdir(parents=True, exist_ok=True)
-                if record.type == "file":
-                    src_path.copy(dest_path)
-                elif record.type == "symlink":
-                    link_target = src_path.read_text()
-                    dest_path.symlink_to(link_target)
+                src_path.copy(dest_path)
+            
+            elif record.type == "symlink":
+                dest_path.parent.mkdir(parents=True, exist_ok=True)
+                index = record.data['$objects'][1]['Target'].data
+                link_target = record.data['$objects'][index]
+                dest_path.symlink_to(link_target)
             
             if restore_modified_dates:
                 try:
                     mtime = record.data["$objects"][1]["LastModified"]
-                    os.utime(dest_path, (mtime, mtime))
+                    if record.type == "directory":
+                        # Postpone setting directory mtime until all files are created.
+                        directories_created.append((dest_path, mtime))
+                    else:
+                        os.utime(dest_path, (mtime, mtime))
                 except Exception:
                     logging.warning(f"Failed to restore modified date for {dest_path}")
+        
+        # Resume restoring directory modified dates.
+        for dir_path, mtime in directories_created:
+            try:
+                os.utime(dir_path, (mtime, mtime))
+            except Exception:
+                logging.warning(f"Failed to restore modified date for directory {dir_path}")
     
     @staticmethod
     def get_src_path(file_id: str) -> str:
         """Get the source path in the backup for the given file ID."""
         return f"{file_id[0:2]}/{file_id}"
-    
-    @staticmethod
-    def _is_to_skip(record: Record) -> bool:
-        """To skip some known misses."""
-        if record.type == "symlink" and record.relative_path == "Library/WebKit/WebsiteData/IndexedDB/v0":
-            return True
-        if record.type == "symlink" and record.relative_path == "timezone/localtime" and record.domain == "DatabaseDomain":
-            return True
-        return False
     
     def _read_plist(self, sub_path) -> dict:
         """
