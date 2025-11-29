@@ -1,7 +1,7 @@
 import logging
 import argparse
 from .backup import Backup
-from ._version import __version__
+from . import __version__
 
 
 def build_parser():
