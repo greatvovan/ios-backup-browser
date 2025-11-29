@@ -27,13 +27,6 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
 
-        # A workaround for uv<->setuptools_scm failing to produce correct version.
-      - name: Install setuptools-scm
-        run: pip install setuptools-scm
-
-      - name: Save version
-        run: echo "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_IOS_BACKUP_BROWSER=$(python -m setuptools_scm)" >> $GITHUB_ENV
-
       - name: Build
         run: uv build
 
