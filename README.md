@@ -24,7 +24,8 @@ python -m ios_backup export \
   [--domain <domain>] \
   [--namespace <namespace>] \
   [--path <device/path>] \
-  [--restore-modified-dates]
+  [--restore-dates]
+  [--restore-symlinks]
   [--ignore-missing]
 ```
 
@@ -61,7 +62,11 @@ All values are interpreted as prefixes, full match is not required.
 database, but not present in the backup). Useful for incomplete or corrupted backups.
 
 `--restore-dates` – restore dates and times of files as they were on
-the original device. 
+the original device.
+
+`--restore-symlinks` – restore symbolic links from backup. This has questionable
+value, as links will point to non-existent locations on your system, but may be
+useful for research purposes.
 
 ## Advanced usage
 
@@ -89,7 +94,7 @@ query = """
 """
 
 content = Backup.parse(db.buffered_query(query), parse_metadata=True)
-backup.export(content, 'tests/.data/exported_videos', restore_modified_dates=True)
+backup.export(content, 'path/to/exported_videos', restore_modified_dates=True)
 ```
 
 Process specific files based on query:
@@ -122,6 +127,12 @@ for record in Backup.parse(rows):
         # Do something with the data.
 ```
 
+## Progress bar
+
+Export usually runs quite fast on SSD storage, but may take longer on HDDs.
+To get a sense of progress, you can install [tqdm](https://github.com/tqdm/tqdm) module. If tqdm is found in the executing Python environment and if `total_count` is provided to `Backup.export()` (true for CLI use), it will be
+used to produce a progress bar in the terminal interface.
+
 ## Relation to `unback()` iOS function
 
 Unback function was broken by Apple at around version 10 of iOS, and hence
@@ -133,3 +144,29 @@ While this module does not provide 100% equivalemnt of `unback()`'s output,
 it does an honest export of entire backup content and will suit for cases
 when you need to browse the content or simply extract photos, videos, or other
 applications' files.
+
+## Creating backups
+
+### MacOS
+- Connect device with a USB cable.
+- If connecting first time, click "Allow" in the pop-up window, tap "Trust" on the device and enter your passcode.
+- Open Finder and select your device on the side panel.
+- Click "Back Up Now" on "General" tab.
+- Click on the option to **not** encrypt the backup as the module does not support encrypted backups.
+
+### Windows
+- Download and install the Apple Devices app from the Microsoft Store.
+- Connect your device to your PC with a USB or USB-C cable.
+- If prompted, tap "Trust" on your device and enter your passcode.
+- Open the Apple Devices app and select your device from the sidebar.
+- Click "Backup" in the "Backups" section.
+- Do not select the option for encryption as the module does not support encrypted backups.
+- Click "Back Up Now".
+
+### Linux/Unix/MacOS/*
+- Install [libimobiledevice](https://libimobiledevice.org/) libraries according to the project's instructions.
+- Connect the device with a USB cable.
+- Run `idevicebackup2 backup --full /path/to/your/backup/folder`
+- Tap "Trust" on the device and enter passcode when prompted.
+
+* Libraries are cross-platform, although on MacOS and Windows there are more user-friendly options.
