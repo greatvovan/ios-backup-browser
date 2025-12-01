@@ -110,7 +110,8 @@ query = """
     where domain = 'CameraRollDomain' and relativePath like 'Media/DCIM/%.MOV'
 """
 
-content = Backup.parse(db.buffered_query(query), parse_metadata=True)
+raw_content = db.buffered_query(query)
+content = Backup.parse(raw_content, parse_metadata=True)
 backup.export(content, 'path/to/exported_videos', restore_modified_dates=True)
 ```
 
