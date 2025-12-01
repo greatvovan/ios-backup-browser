@@ -185,6 +185,6 @@ applications' files.
 - Install [libimobiledevice](https://libimobiledevice.org/) libraries according to the project's instructions.
 - Connect the device with a USB cable.
 - Run `idevicebackup2 backup --full /path/to/your/backup/folder`
-- Tap "Trust" on the device and enter passcode when prompted.
+- Tap "Trust" on the device and enter the passcode when prompted.
 
-* Libraries are cross-platform, although on MacOS and Windows there are more user-friendly options.
+*Libraries are cross-platform, although on MacOS and Windows you may find the "official" tools more user-friendly.
