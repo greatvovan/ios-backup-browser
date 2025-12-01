@@ -18,9 +18,7 @@ content, they use Apple's private API that can be discontinued at any point.
 Syntax:
 
 ```bash
-python -m ios_backup export \
-  --backup-path <iosbackup/path> \
-  --output-path <export/path> \
+python -m ios_backup export <iosbackup/path> <export/path> \
   [--domain <domain>] \
   [--namespace <namespace>] \
   [--path <device/path>] \
@@ -29,14 +27,10 @@ python -m ios_backup export \
   [--ignore-missing]
 ```
 
-
 ### Export entire backup
 
-```bash
-% python -m ios_backup export \
-  --backup-path iosbackup/path \
-  --output-path export/path \
-  --restore-dates
+```shell
+python -m ios_backup export iosbackup/path export/path --restore-dates
 ```
 
 ### Filtering
@@ -47,19 +41,24 @@ Each file in an iOS backup has the following attributes:
 for example, `AppDomain`, `CameraRollDomain`.
 - Namespace: a level of hierarchy under the domain. For example, content of
 applications will live in `AppDomain` will have namespaces such as `com.mojang.minecraftpe` or `com.apple.iBooks`.
-- Relative path: path in the application's directory.
+- Relative path: path in the application's sandbox.
 
 When exporting the backup, these attributes form a directory tree with layers in the above order, for example, `AppDomain/com.mojang.minecraftpe/Documents/games/com.mojang/Screenshots`.
 
 If you need to export only specific content, you can achive that with filtering keys:
 
-`% ... --domain AppDomain --namespace com.mojang.minecraftpe --path Documents/games/com.mojang/minecraftWorlds`
+```shell
+python -m ios_backup export <ios_backup> <export_path> \
+  --domain AppDomain \
+  --namespace com.mojang.minecraftpe \
+  --path Documents/games/com.mojang/minecraftWorlds
+```
 
 All values are interpreted as prefixes, full match is not required.
 
 ### Other options
 `--ignore-missing` – do not fail on missing files (those defined in the
-database, but not present in the backup). Useful for incomplete or corrupted backups.
+database, but not present in the backup). Useful for incomplete or corrupted backups. Try it if you experience problems.
 
 `--restore-dates` – restore dates and times of files as they were on
 the original device.
@@ -74,7 +73,7 @@ useful for research purposes.
 
 The below example shows how to use a custom query to process backup content.
 
-Create Backup object and obtain the DB:
+In a Python script, create a Backup object and obtain the DB:
 
 ```python
 from ios_backup import Backup
@@ -83,6 +82,24 @@ backup_path = 'path/to/backup/location'
 backup = Backup(backup_path)
 db = backup.db
 ```
+
+Use an SQLite client/browser to explore content of Manifest.db. IDEs like
+PyCharm and VS Code have built-in modules or extensions for that, or you
+can use [SQLite shell](https://sqlite.org/cli.html) for CLI experience.
+There is simply a single table:
+
+```sql
+CREATE TABLE Files (
+  fileID TEXT PRIMARY KEY,
+  domain TEXT,
+  relativePath TEXT,
+  flags INTEGER,
+  file BLOB
+);
+```
+
+After you realized your specific needs, you can export your slice of content
+or process it in other way.
 
 Export content based on a specific query:
 
