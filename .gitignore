@@ -213,3 +213,4 @@ __marimo__/
 .scratches/
 tests/.data/
 test-results/
+src/ios_backup/_version.py

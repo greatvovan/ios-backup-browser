@@ -18,24 +18,19 @@ content, they use Apple's private API that can be discontinued at any point.
 Syntax:
 
 ```bash
-python -m ios_backup export \
-  --backup-path <iosbackup/path> \
-  --output-path <export/path> \
+python -m ios_backup export <iosbackup/path> <export/path> \
   [--domain <domain>] \
   [--namespace <namespace>] \
   [--path <device/path>] \
-  [--restore-modified-dates]
+  [--restore-dates]
+  [--restore-symlinks]
   [--ignore-missing]
 ```
 
-
 ### Export entire backup
 
-```bash
-% python -m ios_backup export \
-  --backup-path iosbackup/path \
-  --output-path export/path \
-  --restore-dates
+```shell
+python -m ios_backup export iosbackup/path export/path --restore-dates
 ```
 
 ### Filtering
@@ -46,22 +41,31 @@ Each file in an iOS backup has the following attributes:
 for example, `AppDomain`, `CameraRollDomain`.
 - Namespace: a level of hierarchy under the domain. For example, content of
 applications will live in `AppDomain` will have namespaces such as `com.mojang.minecraftpe` or `com.apple.iBooks`.
-- Relative path: path in the application's directory.
+- Relative path: path in the application's sandbox.
 
 When exporting the backup, these attributes form a directory tree with layers in the above order, for example, `AppDomain/com.mojang.minecraftpe/Documents/games/com.mojang/Screenshots`.
 
 If you need to export only specific content, you can achive that with filtering keys:
 
-`% ... --domain AppDomain --namespace com.mojang.minecraftpe --path Documents/games/com.mojang/minecraftWorlds`
+```shell
+python -m ios_backup export <ios_backup> <export_path> \
+  --domain AppDomain \
+  --namespace com.mojang.minecraftpe \
+  --path Documents/games/com.mojang/minecraftWorlds
+```
 
 All values are interpreted as prefixes, full match is not required.
 
 ### Other options
 `--ignore-missing` – do not fail on missing files (those defined in the
-database, but not present in the backup). Useful for incomplete or corrupted backups.
+database, but not present in the backup). Useful for incomplete or corrupted backups. Try it if you experience problems.
 
 `--restore-dates` – restore dates and times of files as they were on
-the original device. 
+the original device.
+
+`--restore-symlinks` – restore symbolic links from backup. This has questionable
+value, as links will point to non-existent locations on your system, but may be
+useful for research purposes.
 
 ## Advanced usage
 
@@ -69,7 +73,7 @@ the original device.
 
 The below example shows how to use a custom query to process backup content.
 
-Create Backup object and obtain the DB:
+In a Python script, create a Backup object and obtain the DB:
 
 ```python
 from ios_backup import Backup
@@ -78,6 +82,24 @@ backup_path = 'path/to/backup/location'
 backup = Backup(backup_path)
 db = backup.db
 ```
+
+Use an SQLite client/browser to explore content of Manifest.db. IDEs like
+PyCharm and VS Code have built-in modules or extensions for that, or you
+can use [SQLite shell](https://sqlite.org/cli.html) for CLI experience.
+There is simply a single table:
+
+```sql
+CREATE TABLE Files (
+  fileID TEXT PRIMARY KEY,
+  domain TEXT,
+  relativePath TEXT,
+  flags INTEGER,
+  file BLOB
+);
+```
+
+After you realized your specific needs, you can export your slice of content
+or process it in other way.
 
 Export content based on a specific query:
 
@@ -88,8 +110,9 @@ query = """
     where domain = 'CameraRollDomain' and relativePath like 'Media/DCIM/%.MOV'
 """
 
-content = Backup.parse(db.buffered_query(query), parse_metadata=True)
-backup.export(content, 'tests/.data/exported_videos', restore_modified_dates=True)
+raw_content = db.buffered_query(query)
+content = Backup.parse(raw_content, parse_metadata=True)
+backup.export(content, 'path/to/exported_videos', restore_modified_dates=True)
 ```
 
 Process specific files based on query:
@@ -122,6 +145,12 @@ for record in Backup.parse(rows):
         # Do something with the data.
 ```
 
+## Progress bar
+
+Export usually runs quite fast on SSD storage, but may take longer on HDDs.
+To get a sense of progress, you can install [tqdm](https://github.com/tqdm/tqdm) module. If tqdm is found in the executing Python environment and if `total_count` is provided to `Backup.export()` (true for CLI use), it will be
+used to produce a progress bar in the terminal interface.
+
 ## Relation to `unback()` iOS function
 
 Unback function was broken by Apple at around version 10 of iOS, and hence
@@ -133,3 +162,29 @@ While this module does not provide 100% equivalemnt of `unback()`'s output,
 it does an honest export of entire backup content and will suit for cases
 when you need to browse the content or simply extract photos, videos, or other
 applications' files.
+
+## Creating backups
+
+### MacOS
+- Connect device with a USB cable.
+- If connecting first time, click "Allow" in the pop-up window, tap "Trust" on the device and enter your passcode.
+- Open Finder and select your device on the side panel.
+- Click "Back Up Now" on "General" tab.
+- Click on the option to **not** encrypt the backup as the module does not support encrypted backups.
+
+### Windows
+- Download and install the Apple Devices app from the Microsoft Store.
+- Connect your device to your PC with a USB or USB-C cable.
+- If prompted, tap "Trust" on your device and enter your passcode.
+- Open the Apple Devices app and select your device from the sidebar.
+- Click "Backup" in the "Backups" section.
+- Do not select the option for encryption as the module does not support encrypted backups.
+- Click "Back Up Now".
+
+### Linux/Unix/MacOS/*
+- Install [libimobiledevice](https://libimobiledevice.org/) libraries according to the project's instructions.
+- Connect the device with a USB cable.
+- Run `idevicebackup2 backup --full /path/to/your/backup/folder`
+- Tap "Trust" on the device and enter the passcode when prompted.
+
+*Libraries are cross-platform, although on MacOS and Windows you may find the "official" tools more user-friendly.
