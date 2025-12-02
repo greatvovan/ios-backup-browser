@@ -196,10 +196,13 @@ support encrypted backups.
 - In the pop-up window, select the option to not encrypt the backup.
 
 Backups will be located in
-`$HOME/Library/Application Support/MobileSync/Backup`.
+`$HOME/Library/Application Support/MobileSync/Backup`, where `$HOME` is usually
+`/Users/<yourname>`.
 Note that this location is protected in MacOS. If you want to access this
 location directly from the module, you have to grant **Full Disk Access** to
 your terminal application in **Settings** --> **Privacy & Security**.
+Alternatively, you can use Finder to copy the backup into another location
+that is not protected by this feature, for example, `$HOME/tmp`.
 
 ### Windows
 - Download and install the Apple Devices app from the Microsoft Store.
