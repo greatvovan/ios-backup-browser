@@ -195,6 +195,12 @@ support encrypted backups.
 - Click "Back Up Now" button.
 - In the pop-up window, select the option to not encrypt the backup.
 
+Backups will be located in
+`$HOME/Library/Application Support/MobileSync/Backup`.
+Note that this location is protected in MacOS. If you want to access this
+location directly from the module, you have to grant **Full Disk Access** to
+your terminal application in **Settings** --> **Privacy & Security**.
+
 ### Windows
 - Download and install the Apple Devices app from the Microsoft Store.
 - Connect your device to your PC with a USB or USB-C cable.
@@ -204,6 +210,8 @@ support encrypted backups.
 - Do not select the option for encryption as the module does not support
 encrypted backups.
 - Click "Back Up Now".
+
+Backups will be located in `%USERPROFILE%\Apple\MobileSync\Backup`.
 
 ### Linux/Unix/MacOS/*
 - Install [libimobiledevice](https://libimobiledevice.org/) libraries according
