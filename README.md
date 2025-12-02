@@ -223,5 +223,5 @@ to the project's instructions.
 - Run `idevicebackup2 backup --full /path/to/your/backup/folder`
 - Tap "Trust" on the device and enter the passcode when prompted.
 
-*Libraries are cross-platform, although on MacOS and Windows you may find the
-"official" tools more user-friendly.
+*Libraries are technically cross-platform, although on MacOS and Windows
+you may find the "official" tools more user-friendly.
