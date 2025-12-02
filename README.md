@@ -1,23 +1,24 @@
 # iOS backup browser and exporter
 
-This module allows you to easilly access non-encrypted iOS backups from your
-Python scripts or export backups to your file system for easy browsing of its
-content. The module has a command-line interface for basic usage and Python API
-for more advanced use cases. The module is pure Python and has no dependencies.
+This project is a lightweight, dependency-free Python library for reading and
+exporting unencrypted iOS backups. It provides a simple CLI and a clean Python
+API, making it easy to inspect backup contents or extract it into a regular
+directory structure. The module runs anywhere Python does and is easy to embed
+in scripts, automation, or larger applications.
 
-Backups are the only official way to obtain file system content as it is seen
-by applications. While there are applications allowing "live" browsing of iOS
-content, they use Apple's private API that can be discontinued at any point.
+iOS backups remain the only stable, publicly supported way to access an app’s
+on-device file system. This project aims to make that process straightforward
+and reliable.
 
-## Basic usage
-
-### Installation
+## Installation
 
 `% pip install ios-backup-browser`  
 `% ios-backup --version`  
 `% ios-backup --help`  
 
-Syntax:
+## Syntax
+
+Export:
 
 ```bash
 ios-backup export <iosbackup/path> <export/path> \
@@ -28,6 +29,8 @@ ios-backup export <iosbackup/path> <export/path> \
   [--restore-symlinks]
   [--ignore-missing]
 ```
+
+## Basic usage
 
 ### Export entire backup
 
@@ -122,7 +125,7 @@ content = Backup.parse(raw_content, parse_metadata=True)
 backup.export(content, 'path/to/exported_videos', restore_modified_dates=True)
 ```
 
-Process specific files based on query:
+Process specific files based on a query:
 
 ```python
 # Process all iMessage attachments.
@@ -155,7 +158,7 @@ for record in Backup.parse(rows):
 ## Progress bar
 
 Export usually runs quite fast on SSD storage, but may take longer on HDDs.
-To get a sense of progress, you can install
+To get a sense of export progress, you can install
 [tqdm](https://github.com/tqdm/tqdm) module.
 
 `pip install tqdm`
@@ -174,9 +177,9 @@ project (such as `idevicebackup2 unback`)
 [stopped working](https://github.com/libimobiledevice/libimobiledevice/issues/1439)
 on most backups.
 While this module does not provide 100% equivalemnt of `unback()`'s output,
-it does an honest export of entire backup content and will suit for cases
-when you need to browse the content or simply extract photos, videos, or other
-applications' files.
+it does an honest job of exporting of backup content and will suit for
+cases when you need to browse the files or simply extract photos, videos,
+or other applications' files.
 
 ## Creating backups
 
