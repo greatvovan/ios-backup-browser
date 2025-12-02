@@ -7,7 +7,7 @@ from . import __version__
 def build_parser():
     parser = argparse.ArgumentParser(description="iOS Backup Browser")
     parser.add_argument(
-        "--version",
+        "-V", "--version",
         action="version",
         version=f"ios_backup {__version__}",
         help="Show the version number and exit"
