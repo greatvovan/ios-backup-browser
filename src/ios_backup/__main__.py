@@ -7,7 +7,7 @@ from . import __version__
 def build_parser():
     parser = argparse.ArgumentParser(description="iOS Backup Browser")
     parser.add_argument(
-        "--version",
+        "-V", "--version",
         action="version",
         version=f"ios_backup {__version__}",
         help="Show the version number and exit"
@@ -24,12 +24,12 @@ def build_parser():
     parser_export.add_argument("--ignore-missing", action="store_true", help="Ignore missing files during export")
     parser_export.add_argument("--restore-dates", action="store_true", help="Restore modified dates")
     parser_export.add_argument("--restore-symlinks", action="store_true", help="Restore symlbolic links")
-    parser_export.set_defaults(func=export_handler)
+    parser_export.set_defaults(func=handle_export)
 
     return parser
 
 
-def export_handler(args):
+def handle_export(args):
     if not args.backup_path or not args.output_path:
         logging.error("Both backup_path and output_path are required for export command.")
         exit(1)
@@ -64,7 +64,7 @@ def export(
     logging.info(f"{content_count} entries processed")
 
 
-def main():
+def handle_cli():
     parser = build_parser()
     try:
         args = parser.parse_args()
@@ -73,12 +73,16 @@ def main():
         exit(1)
     
     args.func(args)
-        
 
-if __name__ == "__main__":
+
+def main():
     try:
         logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-        main()
+        handle_cli()
     except Exception as e:    
         logging.error(f"An error occurred: {e}", exc_info=True)
         exit(1)
+
+
+if __name__ == "__main__":
+    main()

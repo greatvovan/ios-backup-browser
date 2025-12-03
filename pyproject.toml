@@ -22,5 +22,8 @@ build-backend = "setuptools.build_meta"
 fallback_version = "0.0.0"
 version_file = "src/ios_backup/_version.py"
 
+[project.scripts]
+ios-backup = "ios_backup.__main__:main"
+
 [tool.pytest.ini_options]
 pythonpath = ["src"]

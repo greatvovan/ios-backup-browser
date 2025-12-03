@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from ios_backup.__main__ import build_parser, export_handler, export
+from ios_backup.__main__ import build_parser, handle_export, export
 
 
 def test_cli_arguments(monkeypatch, tmp_path):
@@ -47,7 +47,7 @@ def test_cli_arguments(monkeypatch, tmp_path):
     # Run the handler - this should call our fake_export and populate `captured`.
     # If the handler expects different attribute names, this will raise AttributeError
     # or result in wrong values in `captured` and the assertions below will fail.
-    export_handler(args)
+    handle_export(args)
 
     # Verify all parsed values were passed into export() by the handler
     assert captured['backup_path'] == str(tmp_path / 'some_backup')

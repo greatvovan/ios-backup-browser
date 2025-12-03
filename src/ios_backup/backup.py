@@ -127,6 +127,12 @@ class Backup:
                 except Exception:
                     logging.warning(f"Failed to restore modified date for {dest_path}")
         
+        try:
+            if directories_created:
+                directories_created = tqdm(directories_created, desc="Restoring directory dates")
+        except NameError:
+            pass
+
         # Resume restoring directory modified dates.
         for dir_path, mtime in directories_created:
             try:
