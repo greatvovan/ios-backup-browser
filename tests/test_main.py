@@ -110,7 +110,7 @@ def test_export_real_backup(tmp_path):
             dst = export_path / item['dst']
             assert dst.exists() and dst.is_dir(), f"Expected exported directory {dst} does not exist."  
             if item['mtime']:
-                assert dst.stat().st_mtime == item['mtime']
+                assert dst.stat().st_mtime == item['mtime'], f"Directory {dst} mtime mismatch."
 
         elif item['type'] == 'file':
             src = Path(item['src'])
@@ -118,10 +118,10 @@ def test_export_real_backup(tmp_path):
             assert dst.exists() and dst.is_file(), f"Expected exported file {dst} does not exist."
             assert dst.read_bytes() == src.read_bytes(), f"Exported file {dst} content mismatch."
             if item['mtime']:
-                assert dst.stat().st_mtime == item['mtime']
+                assert dst.stat().st_mtime == item['mtime'], f"File {dst} mtime mismatch."
 
         elif item['type'] == 'symlink':
             dst = export_path / item['dst']
             assert dst.exists(follow_symlinks=False) and dst.is_symlink(), f"Expected exported symlink {dst} does not exist."
             if item['mtime']:
-                assert dst.stat(follow_symlinks=False).st_mtime == item['mtime']
+                assert dst.stat(follow_symlinks=False).st_mtime == item['mtime'], f"Symlink {dst} mtime mismatch."
