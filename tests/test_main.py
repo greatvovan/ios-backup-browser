@@ -3,7 +3,7 @@ from pathlib import Path
 from ios_backup.__main__ import build_parser, handle_export, export
 
 
-def test_cli_arguments(monkeypatch, tmp_path):
+def test_cli_export(monkeypatch, tmp_path):
     """Ensure values parsed by build_parser() are passed to export().
 
     This test parses a realistic `export` command line then replaces the real
@@ -14,13 +14,14 @@ def test_cli_arguments(monkeypatch, tmp_path):
     captured = {}
 
     def mock_export(backup_path, output_path,
-                    domain_prefix, namespace_prefix, path_prefix,
+                    domain_prefix, namespace_prefix, path_prefix, like_syntax,
                     ignore_missing=True, restore_modified_dates=False, restore_symlinks=False):
         captured['backup_path'] = backup_path
         captured['output_path'] = output_path
         captured['domain_prefix'] = domain_prefix
         captured['namespace_prefix'] = namespace_prefix
         captured['path_prefix'] = path_prefix
+        captured['like_syntax'] = like_syntax
         captured['ignore_missing'] = ignore_missing
         captured['restore_modified_dates'] = restore_modified_dates
         captured['restore_symlinks'] = restore_symlinks
@@ -55,6 +56,7 @@ def test_cli_arguments(monkeypatch, tmp_path):
     assert captured['domain_prefix'] == 'AppDomain'
     assert captured['namespace_prefix'] == 'com.example'
     assert captured['path_prefix'] == 'docs'
+    assert captured['like_syntax'] is False
     assert captured['ignore_missing'] is True
     assert captured['restore_modified_dates'] is True
     assert captured['restore_symlinks'] is True
@@ -66,7 +68,7 @@ def test_export_real_backup(tmp_path):
     export_path = tmp_path / 'exported'
 
     export('tests/data/sample_backup', str(export_path),
-           domain_prefix='', namespace_prefix='', path_prefix='',
+           domain='', namespace='', path='', like_syntax=False,
            ignore_missing=False, restore_modified_dates=True, restore_symlinks=True)
 
     # Verify that expected entries were exported.
