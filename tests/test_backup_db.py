@@ -80,7 +80,7 @@ class TestBackupDB:
     def test_get_content_with_domain_prefix(self, sample_db):
         """Test get_content with domain prefix filter."""
         db = BackupDB(sample_db)
-        results = list(db.get_content(domain_prefix='AppDomain'))
+        results = list(db.get_content(domain='AppDomain'))
         assert len(results) == 2  # Should return 2 AppDomain records
         assert all('AppDomain' in row[1] for row in results)  # Check domain field
         db.close()
@@ -88,7 +88,7 @@ class TestBackupDB:
     def test_get_content_with_namespace_prefix(self, sample_db):
         """Test get_content with namespace prefix filter."""
         db = BackupDB(sample_db)
-        results = list(db.get_content(domain_prefix='AppDomain', namespace_prefix='com.example'))
+        results = list(db.get_content(domain='AppDomain', namespace='com.example'))
         assert len(results) == 2
         assert all('com.example' in row[1] for row in results)
         db.close()
@@ -96,7 +96,7 @@ class TestBackupDB:
     def test_get_content_with_path_prefix(self, sample_db):
         """Test get_content with path prefix filter."""
         db = BackupDB(sample_db)
-        results = list(db.get_content(path_prefix='docs/'))
+        results = list(db.get_content(path='docs/'))
         assert len(results) == 2
         assert all(row[2].startswith('docs/') for row in results)
         db.close()
@@ -109,10 +109,10 @@ class TestBackupDB:
         assert db.get_content_count() == len(SAMPLE_DATA)
         
         # Test count with domain filter
-        assert db.get_content_count(domain_prefix='AppDomain') == 2
+        assert db.get_content_count(domain='AppDomain') == 2
         
         # Test count with domain and path filters
-        assert db.get_content_count(domain_prefix='AppDomain', path_prefix='docs/') == 2
+        assert db.get_content_count(domain='AppDomain', path='docs/') == 2
         
         db.close()
 
@@ -140,7 +140,7 @@ class TestBackupDB:
         db2 = BackupDB(sample_db)
         
         # Perform query with db1
-        list(db1.get_content(domain_prefix='AppDomain'))
+        list(db1.get_content(domain='AppDomain'))
         
         # Verify db2 can still perform queries
         results = list(db2.get_content())
@@ -148,3 +148,69 @@ class TestBackupDB:
         
         db1.close()
         db2.close()
+
+    def test_get_namespaces_returns_distinct_only(self, sample_db):
+        """Test get_namespaces returns only distinct namespaces for a given domain."""
+        db = BackupDB(sample_db)
+        
+        # Get namespaces for AppDomain (which has 'com.example.app' namespace in sample data)
+        namespaces = db.get_namespaces('AppDomain')
+        assert len(namespaces) == 1
+        assert 'com.example.app' in namespaces
+        
+        # Get namespaces for HomeDomain (which has 'settings' namespace)
+        namespaces = db.get_namespaces('HomeDomain')
+        assert len(namespaces) == 1
+        assert 'settings' in namespaces
+        
+        db.close()
+
+    def test_get_namespaces_with_duplicate_entries(self, sample_db, tmp_path):
+        """Test get_namespaces returns distinct namespaces even with duplicate entries."""
+        # Create a database with duplicate namespace entries
+        db_path = str(tmp_path / "test_duplicates.db")
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            CREATE TABLE Files (
+                fileID TEXT,
+                domain TEXT,
+                relativePath TEXT,
+                flags INTEGER,
+                file BLOB
+            )
+        """)
+        
+        # Insert multiple records with same domain-namespace but different paths
+        cursor.executemany(
+            "INSERT INTO Files (fileID, domain, relativePath, flags, file) VALUES (?, ?, ?, ?, ?)",
+            [
+                ('file1', 'TestDomain-namespace1', 'path1', 1, b'data1'),
+                ('file2', 'TestDomain-namespace1', 'path2', 1, b'data2'),
+                ('file3', 'TestDomain-namespace1', 'path3', 1, b'data3'),
+                ('file4', 'TestDomain-namespace2', 'path4', 1, b'data4'),
+                ('file5', 'TestDomain-namespace2', 'path5', 1, b'data5'),
+            ]
+        )
+        conn.commit()
+        conn.close()
+        
+        db = BackupDB(db_path)
+        namespaces = db.get_namespaces('TestDomain')
+        
+        # Should return only 2 distinct namespaces despite multiple files per namespace
+        assert len(namespaces) == 2
+        assert set(namespaces) == {'namespace1', 'namespace2'}
+        
+        db.close()
+
+    def test_get_namespaces_empty_result(self, sample_db):
+        """Test get_namespaces returns empty list for domain with no namespaces."""
+        db = BackupDB(sample_db)
+        
+        # MediaDomain has no namespace (no '-' in domain)
+        namespaces = db.get_namespaces('MediaDomain')
+        assert len(namespaces) == 0
+        
+        db.close()
