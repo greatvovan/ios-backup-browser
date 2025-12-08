@@ -4,6 +4,8 @@ from typing import Iterable
 
 
 class QueryBuilder:
+    # This is prone to SQL injection, but... do we care if people want to hack their own backups?
+
     @staticmethod
     def content(domain_prefix: str = "", namespace_prefix: str = "", path_prefix: str = "") -> str:
         """Build SQL query to fetch files based on domain and path prefix."""
@@ -49,6 +51,16 @@ class QueryBuilder:
                     else domain
                 end as domain
             from Files;
+        """
+    
+    @staticmethod
+    def all_namespaces(domain: str) -> str:
+        """Build SQL query to fetch all distinct namespaces for a given domain."""
+
+        return f"""
+            select distinct substr(domain, {len(domain) + 2}) as namespace
+            from Files
+            where domain like '{domain}-%';
         """
 
 class BackupDB:
@@ -97,10 +109,14 @@ class BackupDB:
     def get_all_domains(self) -> list[str]:
         """Fetch all distinct domains from the database."""
         query = QueryBuilder.all_domains()
-        cursor = self.conn.cursor()
-        cursor.execute(query)
-        domains = [row[0] for row in cursor.fetchall()]
-        return domains
+        result = [row[0] for row in self.simple_query(query)]
+        return result
+    
+    def get_namespaces(self, domain: str) -> list[str]:
+        """Fetch all distinct domains from the database."""
+        query = QueryBuilder.all_namespaces(domain)
+        result = [row[0] for row in self.simple_query(query)]
+        return result
     
     def close(self) -> None:
         """Close the database connection."""
