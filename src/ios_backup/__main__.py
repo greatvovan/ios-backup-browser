@@ -24,6 +24,7 @@ def build_parser():
     parser_export.add_argument("--domain", type=str, help="Filter by domain prefix", metavar="prefix")
     parser_export.add_argument("--namespace", type=str, help="Filter by namespace", metavar="prefix")
     parser_export.add_argument("--path", type=str, help="Filter by device path prefix", metavar="prefix")
+    parser_export.add_argument("--like-syntax", action="store_true", help="Interpret filters as Sqlite LIKE expressions instead of prefixes")
     parser_export.add_argument("--ignore-missing", action="store_true", help="Ignore missing files during export")
     parser_export.add_argument("--restore-dates", action="store_true", help="Restore modified dates")
     parser_export.add_argument("--restore-symlinks", action="store_true", help="Restore symlbolic links")
@@ -68,12 +69,18 @@ def handle_export(args):
         logging.error("Both backup_path and output_path are required for export command.")
         exit(1)
     
+    if args.like_syntax and args.namespace:
+        logging.error("The --like-syntax option cannot be used with --namespace."
+                      "Use --domain with namespace pattern included instead.")
+        exit(1)
+
     export(
         args.backup_path,
         args.output_path,
         args.domain or "",
         args.namespace or "",
         args.path or "",
+        args.like_syntax,
         args.ignore_missing,
         args.restore_dates,
         args.restore_symlinks,
@@ -83,17 +90,19 @@ def handle_export(args):
 def export(
         backup_path: str,
         output_path: str,
-        domain_prefix: str,
-        namespace_prefix: str,
-        path_prefix: str,
+        domain: str,
+        namespace: str,
+        path: str,
+        like_syntax: bool = False,
         ignore_missing: bool = True,
         restore_modified_dates: bool = False,
         restore_symlinks: bool = False,
     ) -> None:
     backup = Backup(backup_path)
-    content = backup.get_content(domain_prefix, namespace_prefix,
-                                 path_prefix, parse_metadata=restore_modified_dates)
-    content_count = backup.get_content_count(domain_prefix, namespace_prefix, path_prefix)
+    content = backup.get_content(domain, namespace,
+                                 path, like_syntax,
+                                 parse_metadata=restore_modified_dates)
+    content_count = backup.get_content_count(domain, namespace, path, like_syntax)
     backup.export(content, output_path, ignore_missing, restore_modified_dates, restore_symlinks, content_count)
     backup.close()
     logging.info(f"{content_count} entries processed")
@@ -128,6 +137,11 @@ def handle_inspect_namespaces(args):
 
 
 def handle_inspect_files(args):
+    if args.like_syntax and args.namespace:
+        logging.error("The --like-syntax option cannot be used with --namespace."
+                      "Use --domain with namespace pattern included instead.")
+        exit(1)
+
     backup = Backup(args.backup_path)
     content_count = backup.get_content_count(args.domain, args.namespace, args.path)
 

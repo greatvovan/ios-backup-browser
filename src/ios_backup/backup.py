@@ -120,19 +120,20 @@ class Backup:
 
             yield Record(id_, domain, sub, path, _FLAG_MAP[flag], data)
 
-    def get_content(self, domain_prefix: str = "", namespace_prefix: str = "",
-                    path_prefix: str = "", parse_metadata: bool = False) -> Iterable[Record]:
+    def get_content(self, domain: str = "", namespace: str = "",
+                    path: str = "", like_syntax: bool = False,
+                    parse_metadata: bool = False) -> Iterable[Record]:
         """Fetch content records based on filters."""
 
-        content = self.db.get_content(domain_prefix, namespace_prefix, path_prefix)
+        content = self.db.get_content(domain, namespace, path, like_syntax)
         return self.parse(content, parse_metadata)
 
     @cache
-    def get_content_count(self, domain_prefix: str = "", namespace_prefix: str = "",
-                          path_prefix: str = "") -> int:
+    def get_content_count(self, domain: str = "", namespace: str = "",
+                          path: str = "", like_syntax: bool = False) -> int:
         """Count content records based on filters."""
         
-        return self.db.get_content_count(domain_prefix, namespace_prefix, path_prefix)
+        return self.db.get_content_count(domain, namespace, path, like_syntax)
     
     def export(self, content: Iterable[Record], path: str,
                ignore_missing: bool = False, restore_modified_dates: bool = False,
