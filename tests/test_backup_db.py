@@ -77,24 +77,24 @@ class TestBackupDB:
         assert len(results) == len(SAMPLE_DATA)
         db.close()
 
-    def test_get_content_with_domain_prefix(self, sample_db):
-        """Test get_content with domain prefix filter."""
+    def test_get_content_with_domain(self, sample_db):
+        """Test get_content with domain filter."""
         db = BackupDB(sample_db)
         results = list(db.get_content(domain='AppDomain'))
         assert len(results) == 2  # Should return 2 AppDomain records
         assert all('AppDomain' in row[1] for row in results)  # Check domain field
         db.close()
 
-    def test_get_content_with_namespace_prefix(self, sample_db):
-        """Test get_content with namespace prefix filter."""
+    def test_get_content_with_namespace(self, sample_db):
+        """Test get_content with namespace filter."""
         db = BackupDB(sample_db)
         results = list(db.get_content(domain='AppDomain', namespace='com.example'))
         assert len(results) == 2
         assert all('com.example' in row[1] for row in results)
         db.close()
 
-    def test_get_content_with_path_prefix(self, sample_db):
-        """Test get_content with path prefix filter."""
+    def test_get_content_with_path(self, sample_db):
+        """Test get_content with path filter."""
         db = BackupDB(sample_db)
         results = list(db.get_content(path='docs/'))
         assert len(results) == 2
@@ -117,7 +117,7 @@ class TestBackupDB:
         db.close()
 
     def test_get_all_domains(self, sample_db):
-        """Test get_all_domains returns distinct domain prefixes."""
+        """Test get_all_domains returns distinct domains."""
         db = BackupDB(sample_db)
         domains = db.get_all_domains()
         
