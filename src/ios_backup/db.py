@@ -11,7 +11,8 @@ class QueryBuilder:
         domain: str = "",
         namespace: str = "",
         path: str = "",
-        like_syntax: bool = False
+        like_syntax: bool = False,
+        sorting: bool = False,
     ) -> str:
         """
         Build SQL query to fetch files based on domain, namespace, and path.
@@ -40,13 +41,16 @@ class QueryBuilder:
             
             if path:
                 query += f" AND relativePath LIKE '{path}%'"
+        
+        if sorting:
+            query += " ORDER BY domain ASC, relativePath ASC"
 
         return query
     
     @classmethod
     def content_count(cls, domain: str, namespace: str = "",
                       path: str = "", like_syntax: bool = False) -> str:
-        """Build SQL query to count files based on domain and path prefix."""
+        """Build SQL query to count files based on domain and path."""
 
         query = f"""
             SELECT COUNT(*)
@@ -108,9 +112,10 @@ class BackupDB:
                 yield record
 
     def get_content(self, domain: str = "", namespace: str = "",
-                    path: str = "", like_syntax: bool = False) -> Iterable[tuple]:
+                    path: str = "", like_syntax: bool = False,
+                    sorting: bool = False) -> Iterable[tuple]:
         """Fetch content records based on filters."""
-        query = QueryBuilder.content(domain, namespace, path, like_syntax)
+        query = QueryBuilder.content(domain, namespace, path, like_syntax, sorting)
         return self.buffered_query(query)
     
     def get_content_count(self, domain: str = "", namespace: str = "",

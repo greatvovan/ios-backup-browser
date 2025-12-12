@@ -21,9 +21,9 @@ def build_parser():
     parser_export = commands.add_parser("export", help="Export files from iOS backup")
     parser_export.add_argument("backup_path", type=str, help="Path to the iOS backup directory")
     parser_export.add_argument("output_path", type=str, help="Path to export files")
-    parser_export.add_argument("--domain", type=str, help="Filter by domain prefix", metavar="prefix")
-    parser_export.add_argument("--namespace", type=str, help="Filter by namespace", metavar="prefix")
-    parser_export.add_argument("--path", type=str, help="Filter by device path prefix", metavar="prefix")
+    parser_export.add_argument("--domain", type=str, help="Filter by domain", metavar="string")
+    parser_export.add_argument("--namespace", type=str, help="Filter by namespace", metavar="string")
+    parser_export.add_argument("--path", type=str, help="Filter by device path", metavar="string")
     parser_export.add_argument("--like-syntax", action="store_true", help="Interpret filters as Sqlite LIKE expressions instead of prefixes")
     parser_export.add_argument("--ignore-missing", action="store_true", help="Ignore missing files during export")
     parser_export.add_argument("--restore-dates", action="store_true", help="Restore modified dates")
@@ -53,9 +53,9 @@ def build_parser():
     inspect_namespaces.set_defaults(func=handle_inspect_namespaces)
 
     inspect_files = inspect_commands.add_parser("files", help="List backup files")
-    inspect_files.add_argument("--domain", type=str, help="Filter by domain prefix", metavar="prefix")
-    inspect_files.add_argument("--namespace", type=str, help="Filter by namespace", metavar="prefix")
-    inspect_files.add_argument("--path", type=str, help="Filter by device path prefix", metavar="prefix")
+    inspect_files.add_argument("--domain", type=str, help="Filter by domain", metavar="string")
+    inspect_files.add_argument("--namespace", type=str, help="Filter by namespace", metavar="string")
+    inspect_files.add_argument("--path", type=str, help="Filter by device path", metavar="string")
     inspect_files.add_argument("--like-syntax", action="store_true", help="Interpret filters as Sqlite LIKE expressions instead of prefixes")
     inspect_files.add_argument("backup_path", type=str, help="Path to the iOS backup directory")
     inspect_files.set_defaults(func=handle_inspect_files)
@@ -143,7 +143,7 @@ def handle_inspect_files(args):
         exit(1)
 
     backup = Backup(args.backup_path)
-    content_count = backup.get_content_count(args.domain, args.namespace, args.path)
+    content_count = backup.get_content_count(args.domain, args.namespace, args.path, args.like_syntax)
 
     if content_count > 1000 and sys.stdin.isatty():
         print(f"Warning: this query will return {content_count} records.")
@@ -152,7 +152,10 @@ def handle_inspect_files(args):
         if answer not in ("", "y", "yes"):
             return
         
-    content = backup.get_content(args.domain, args.namespace, args.path, parse_metadata=True)
+    content = backup.get_content(
+        args.domain, args.namespace, args.path,
+        args.like_syntax, parse_metadata=True, sorting=True,
+    )
     print_files(content)
     backup.close()
 

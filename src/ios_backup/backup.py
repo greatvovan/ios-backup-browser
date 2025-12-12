@@ -122,10 +122,11 @@ class Backup:
 
     def get_content(self, domain: str = "", namespace: str = "",
                     path: str = "", like_syntax: bool = False,
-                    parse_metadata: bool = False) -> Iterable[Record]:
+                    parse_metadata: bool = False, sorting: bool = False
+                    ) -> Iterable[Record]:
         """Fetch content records based on filters."""
 
-        content = self.db.get_content(domain, namespace, path, like_syntax)
+        content = self.db.get_content(domain, namespace, path, like_syntax, sorting)
         return self.parse(content, parse_metadata)
 
     @cache
