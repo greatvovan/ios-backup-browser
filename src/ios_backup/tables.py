@@ -207,6 +207,7 @@ def naturalsize(
     if abs_bytes < base:
         return f"{int(bytes_)}B"
 
+    # TODO: replace log(bytes, base) with division for better performance.
     exp = int(min(log(abs_bytes, base), len(suffixes)))
     ret: str = format % (bytes_ / (base**exp)) + suffixes[exp - 1]
     return ret
