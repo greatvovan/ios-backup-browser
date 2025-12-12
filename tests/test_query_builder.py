@@ -79,3 +79,16 @@ def test_content_query_like_syntax():
             WHERE 1 = 1 AND domain LIKE '{domain}' AND relativePath LIKE '{path}'
         """
     assert normalize_whitespace(query) == normalize_whitespace(expected_query)
+
+def test_content_query_with_sorting():
+    domain = generate_random_string(10)
+    namespace = generate_random_string(15)
+    path = generate_random_string(20)
+    query = QueryBuilder.content(domain, namespace, path, sorting=True)
+    expected_query = f"""
+            SELECT fileID, domain, relativePath, flags, file
+            FROM Files
+            WHERE 1 = 1 AND domain LIKE '{domain}%-{namespace}%' AND relativePath LIKE '{path}%'
+            ORDER BY domain ASC, relativePath ASC
+        """
+    assert normalize_whitespace(query) == normalize_whitespace(expected_query)
