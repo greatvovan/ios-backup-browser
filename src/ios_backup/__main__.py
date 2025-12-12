@@ -142,8 +142,23 @@ def handle_inspect_files(args):
                       "Use --domain with namespace pattern included instead.")
         exit(1)
 
-    backup = Backup(args.backup_path)
-    content_count = backup.get_content_count(args.domain, args.namespace, args.path, args.like_syntax)
+    inspect_files(
+        args.backup_path,
+        args.domain or "",
+        args.namespace or "",
+        args.path or "",
+        args.like_syntax,
+    )
+
+def inspect_files(
+        backup_path: str,
+        domain: str,
+        namespace: str,
+        path: str,
+        like_syntax: bool = False,
+    ) -> None:
+    backup = Backup(backup_path)
+    content_count = backup.get_content_count(domain, namespace, path, like_syntax)
 
     if content_count > 1000 and sys.stdin.isatty():
         print(f"Warning: this query will return {content_count} records.")
@@ -153,8 +168,8 @@ def handle_inspect_files(args):
             return
         
     content = backup.get_content(
-        args.domain, args.namespace, args.path,
-        args.like_syntax, parse_metadata=True, sorting=True,
+        domain, namespace, path,
+        like_syntax, parse_metadata=True, sorting=True,
     )
     print_files(content)
     backup.close()
