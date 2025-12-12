@@ -48,7 +48,7 @@ def test_content_query_domain_and_namespace():
 
 def test_content_query_path():
     path = generate_random_string(20)
-    query = QueryBuilder.content(path_prefix=path)
+    query = QueryBuilder.content(path=path)
     expected_query = f"""
             SELECT fileID, domain, relativePath, flags, file
             FROM Files
@@ -66,5 +66,29 @@ def test_content_query_domain_and_namespace_and_path():
             SELECT fileID, domain, relativePath, flags, file
             FROM Files
             WHERE 1 = 1 AND domain LIKE '{domain}%-{namespace}%' AND relativePath LIKE '{path}%'
+        """
+    assert normalize_whitespace(query) == normalize_whitespace(expected_query)
+
+def test_content_query_like_syntax():
+    domain = generate_random_string(10)
+    path = generate_random_string(20)
+    query = QueryBuilder.content(domain=domain, path=path, like_syntax=True)
+    expected_query = f"""
+            SELECT fileID, domain, relativePath, flags, file
+            FROM Files
+            WHERE 1 = 1 AND domain LIKE '{domain}' AND relativePath LIKE '{path}'
+        """
+    assert normalize_whitespace(query) == normalize_whitespace(expected_query)
+
+def test_content_query_with_sorting():
+    domain = generate_random_string(10)
+    namespace = generate_random_string(15)
+    path = generate_random_string(20)
+    query = QueryBuilder.content(domain, namespace, path, sorting=True)
+    expected_query = f"""
+            SELECT fileID, domain, relativePath, flags, file
+            FROM Files
+            WHERE 1 = 1 AND domain LIKE '{domain}%-{namespace}%' AND relativePath LIKE '{path}%'
+            ORDER BY domain ASC, relativePath ASC
         """
     assert normalize_whitespace(query) == normalize_whitespace(expected_query)

@@ -32,7 +32,7 @@ def test_parse_with_metadata():
     r = records[0]
     assert r.file_id == "id1"
     assert r.domain == "AppDomain"
-    assert r.subdomain == "com.example"
+    assert r.namespace == "com.example"
     assert r.relative_path == "path/to/file"
     assert r.type == "file"
     assert isinstance(r.data, dict)
@@ -87,14 +87,14 @@ def test__read_plist_and_cached_properties(tmp_path):
     b = Backup(str(backup_dir))
 
     # Access properties and ensure values are loaded
-    assert b.info["DeviceName"] == "iPhone"
-    assert b.manifest["Version"] == 1
-    assert b.status["Status"] == "ok"
+    assert b.info.data["DeviceName"] == "iPhone"
+    assert b.manifest.data["Version"] == 1
+    assert b.status.data["Status"] == "ok"
 
     # Cached properties: change file on disk and ensure property doesn't change
     with (backup_dir / "Info.plist").open("wb") as f:
         plistlib.dump({"DeviceName": "Changed"}, f)
-    assert b.info["DeviceName"] == "iPhone"
+    assert b.info.data["DeviceName"] == "iPhone"
 
     b.close()
 
@@ -106,7 +106,7 @@ def test_export_file_copy_and_ignore_missing(tmp_path, monkeypatch):
     out_dir = tmp_path / "out"
 
     domain = "ExportDomain"
-    subdomain = "sub"
+    namespace = "ns"
     rel_path = "docs/readme.txt"
 
     file_id, src_path = create_src_file(backup_dir, domain, rel_path, b"exported")
@@ -120,18 +120,18 @@ def test_export_file_copy_and_ignore_missing(tmp_path, monkeypatch):
     monkeypatch.setattr(_Path, "copy", _copy, raising=False)
 
     # Build Record and run export
-    record = Record(file_id, domain, subdomain, rel_path, "file", None)
+    record = Record(file_id, domain, namespace, rel_path, "file", None)
     b = Backup(str(backup_dir))
 
     b.export([record], str(out_dir), ignore_missing=False)
 
-    dest = out_dir / domain / subdomain / rel_path
+    dest = out_dir / domain / namespace / rel_path
     assert dest.exists()
     assert dest.read_bytes() == b"exported"
 
     # Now test behavior when file is missing and ignore_missing=True
     missing_id = hashlib.sha1(f"{domain}-missing.txt".encode()).hexdigest()
-    missing_record = Record(missing_id, domain, subdomain, "missing.txt", "file", None)
+    missing_record = Record(missing_id, domain, namespace, "missing.txt", "file", None)
 
     # Should not raise when ignore_missing=True
     b.export([missing_record], str(out_dir), ignore_missing=True)
