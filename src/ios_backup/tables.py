@@ -1,6 +1,6 @@
 # Printing and visualization.
 
-from math import log
+from math import floor
 from datetime import datetime, timedelta
 from typing import Iterable
 from .backup import Record
@@ -132,7 +132,6 @@ def print_files(content: Iterable[Record]) -> None:
     transformed = transform_record_for_printing(content)
 
     try:
-        import xyz
         from rich.console import Console
         from rich.table import Table
         
@@ -190,24 +189,30 @@ def ls_style_time(dt: datetime) -> str:
         return dt.strftime("%b %d  %Y")
 
 
-def naturalsize(
-    value: float | str,
-    format: str = "%.1f",
-) -> str:
+def naturalsize(value: int) -> str:
     """
-    Format a number of bytes like a human-readable filesize (e.g. 10 kB).
-    Credits to https://github.com/python-humanize/humanize/blob/main/src/humanize/filesize.py
+    Format a number of bytes like a human-readable filesize (e.g. 12.3K).
+    Representation will be no longer than 6 characters.
+    Inspired by https://github.com/python-humanize/humanize/blob/main/src/humanize/filesize.py
     """
     suffixes = "KMGTPEZYRQ"
-
     base = 1024
-    bytes_ = float(value)
-    abs_bytes = abs(bytes_)
 
-    if abs_bytes < base:
-        return f"{int(bytes_)}B"
+    if value < base:
+        return f"{value}B"
 
-    # TODO: replace log(bytes, base) with division for better performance.
-    exp = int(min(log(abs_bytes, base), len(suffixes)))
-    ret: str = format % (bytes_ / (base**exp)) + suffixes[exp - 1]
-    return ret
+    exp = min(log_int(value, base), len(suffixes))
+    frac = value / (base**exp)
+
+    if frac >= 1000.0:
+        return f"{int(frac)}{suffixes[exp - 1]}"
+
+    return f"{floor(frac * 10) / 10}{suffixes[exp - 1]}"
+
+
+def log_int(x, base):
+    l = 0
+    while x >= base:
+        l += 1
+        x = x // base
+    return l
