@@ -52,7 +52,7 @@ class Record:
     def ctime(self) -> int | None:
         """Get the ctime of the file from metadata, if available."""
         if isinstance(self.data, dict):
-            unix_ts = self.data.get('$objects', self._obj_stub)[1].get("LastModified")
+            unix_ts = self.data.get('$objects', self._obj_stub)[1].get("Birth")
             return unix_ts
         return None
 
