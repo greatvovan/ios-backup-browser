@@ -25,9 +25,18 @@ ios-backup export <iosbackup/path> <export/path> \
   [--domain <domain>] \
   [--namespace <namespace>] \
   [--path <device/path>] \
-  [--restore-dates]
-  [--restore-symlinks]
+  [--like-syntax] \
+  [--restore-dates] \
+  [--restore-symlinks] \
   [--ignore-missing]
+```
+
+Inspection:
+
+```bash
+ios-backup inspect info|apps|domains|namespaces|files <backup_path> \
+  [filters] \
+  [--like-syntax]
 ```
 
 ## Basic usage
@@ -54,7 +63,7 @@ in the above order, for example,
 `AppDomain/com.mojang.minecraftpe/Documents/games/com.mojang/Screenshots`.
 
 If you need to export only specific content, you can achive that with filtering
-keys:
+options:
 
 ```shell
 ios-backup export <ios_backup> <export_path> \
@@ -63,7 +72,8 @@ ios-backup export <ios_backup> <export_path> \
   --path Documents/games/com.mojang/minecraftWorlds
 ```
 
-All values are interpreted as prefixes, full match is not required.
+By default, all values are interpreted as prefixes, but if you supply `--like-syntax` option, you can use any expression acceptable in [SQLite LIKE
+clause](https://www.sqlitetutorial.net/sqlite-like/) for that field.
 
 ### Other options
 `--ignore-missing` – do not fail on missing files (those defined in the
@@ -154,6 +164,26 @@ for record in Backup.parse(rows):
         data = f.read()
         # Do something with the data.
 ```
+
+### Inspect backup content
+
+Print basic info about the backup:
+
+`ios-backup inspect info <backup_path>`
+
+List apps or domains present in the backup:
+
+`ios-backup inspect apps|domains <backup_path>`
+
+List namespaces within a domain
+
+`ios-backup inspect namespaces <domain> <backup_path>`
+
+Print table of files within the backup filtered by specified properties:
+
+`ios-backup inspect files [filters] <backup_path>`
+
+The accepted filters and syntax are the same as for `export` command.
 
 ## Progress bar
 
