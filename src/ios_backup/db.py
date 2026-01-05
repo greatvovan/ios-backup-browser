@@ -4,9 +4,23 @@ from typing import Iterable
 
 
 class QueryBuilder:
+    # This is prone to SQL injection, but... do we care if people want to hack their own backups?
+
     @staticmethod
-    def content(domain_prefix: str = "", namespace_prefix: str = "", path_prefix: str = "") -> str:
-        """Build SQL query to fetch files based on domain and path prefix."""
+    def content(
+        domain: str = "",
+        namespace: str = "",
+        path: str = "",
+        like_syntax: bool = False,
+        sorting: bool = False,
+    ) -> str:
+        """
+        Build SQL query to fetch files based on domain, namespace, and path.
+        If using like_syntax, the domain and path parameters are treated as
+        SQL LIKE expressions. Otherwise, they are treated as prefixes.
+        In the later case, namespace requires domain to be specified
+        (even "").
+        """
 
         query = f"""
             SELECT fileID, domain, relativePath, flags, file
@@ -14,25 +28,34 @@ class QueryBuilder:
             WHERE 1 = 1
         """
 
-        if namespace_prefix:
-            query += f" AND domain LIKE '{domain_prefix}%-{namespace_prefix}%'"
-        elif domain_prefix:
-            query += f" AND domain LIKE '{domain_prefix}%'"
+        if like_syntax:
+            if domain:
+                query += f" AND domain LIKE '{domain}'"
+            if path:
+                query += f" AND relativePath LIKE '{path}'"
+        else:
+            if namespace:
+                query += f" AND domain LIKE '{domain}%-{namespace}%'"
+            elif domain:
+                query += f" AND domain LIKE '{domain}%'"
+            
+            if path:
+                query += f" AND relativePath LIKE '{path}%'"
         
-        if path_prefix:
-            query += f" AND relativePath LIKE '{path_prefix}%'"
+        if sorting:
+            query += " ORDER BY domain ASC, relativePath ASC"
 
         return query
     
     @classmethod
-    def content_count(cls, domain_prefix: str, namespace_prefix: str = "",
-                      path_prefix: str = "") -> str:
-        """Build SQL query to count files based on domain and path prefix."""
+    def content_count(cls, domain: str, namespace: str = "",
+                      path: str = "", like_syntax: bool = False) -> str:
+        """Build SQL query to count files based on domain and path."""
 
         query = f"""
             SELECT COUNT(*)
             FROM (
-                {cls.content(domain_prefix, namespace_prefix, path_prefix)}
+                {cls.content(domain, namespace, path, like_syntax)}
             )
         """
 
@@ -49,6 +72,16 @@ class QueryBuilder:
                     else domain
                 end as domain
             from Files;
+        """
+    
+    @staticmethod
+    def all_namespaces(domain: str) -> str:
+        """Build SQL query to fetch all distinct namespaces for a given domain."""
+
+        return f"""
+            select distinct substr(domain, {len(domain) + 2}) as namespace
+            from Files
+            where domain like '{domain}-%';
         """
 
 class BackupDB:
@@ -78,17 +111,18 @@ class BackupDB:
             for record in records:
                 yield record
 
-    def get_content(self, domain_prefix: str = "", namespace_prefix: str = "",
-                    path_prefix: str = "") -> Iterable[tuple]:
+    def get_content(self, domain: str = "", namespace: str = "",
+                    path: str = "", like_syntax: bool = False,
+                    sorting: bool = False) -> Iterable[tuple]:
         """Fetch content records based on filters."""
-        query = QueryBuilder.content(domain_prefix, namespace_prefix, path_prefix)
+        query = QueryBuilder.content(domain, namespace, path, like_syntax, sorting)
         return self.buffered_query(query)
     
-    def get_content_count(self, domain_prefix: str = "", namespace_prefix: str = "",
-                          path_prefix: str = "") -> int:
+    def get_content_count(self, domain: str = "", namespace: str = "",
+                          path: str = "", like_syntax: bool = False) -> int:
         """Count content records based on filters."""
 
-        query = QueryBuilder.content_count(domain_prefix, namespace_prefix, path_prefix)
+        query = QueryBuilder.content_count(domain, namespace, path, like_syntax)
         cursor = self.conn.cursor()
         cursor.execute(query)
         count = cursor.fetchone()[0]
@@ -97,10 +131,14 @@ class BackupDB:
     def get_all_domains(self) -> list[str]:
         """Fetch all distinct domains from the database."""
         query = QueryBuilder.all_domains()
-        cursor = self.conn.cursor()
-        cursor.execute(query)
-        domains = [row[0] for row in cursor.fetchall()]
-        return domains
+        result = [row[0] for row in self.simple_query(query)]
+        return result
+    
+    def get_namespaces(self, domain: str) -> list[str]:
+        """Fetch all distinct domains from the database."""
+        query = QueryBuilder.all_namespaces(domain)
+        result = [row[0] for row in self.simple_query(query)]
+        return result
     
     def close(self) -> None:
         """Close the database connection."""
