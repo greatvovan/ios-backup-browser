@@ -6,9 +6,9 @@ API, making it easy to inspect backup contents or extract it into a regular
 directory structure. The module runs anywhere Python does and is easy to embed
 in scripts, automation, or larger applications.
 
-iOS backups remain the only stable, publicly supported way to access an app’s
-on-device file system. This project aims to make that process straightforward
-and reliable.
+iOS backups remain the only stable, publicly supported way to access iOS
+application’s on-device file system. This project aims to make that process
+straightforward and reliable.
 
 ## Installation
 
@@ -25,9 +25,18 @@ ios-backup export <iosbackup/path> <export/path> \
   [--domain <domain>] \
   [--namespace <namespace>] \
   [--path <device/path>] \
-  [--restore-dates]
-  [--restore-symlinks]
+  [--like-syntax] \
+  [--restore-dates] \
+  [--restore-symlinks] \
   [--ignore-missing]
+```
+
+Inspection:
+
+```bash
+ios-backup inspect info|apps|domains|namespaces|files <backup_path> \
+  [filters] \
+  [--like-syntax]
 ```
 
 ## Basic usage
@@ -53,8 +62,8 @@ When exporting the backup, these attributes form a directory tree with layers
 in the above order, for example,
 `AppDomain/com.mojang.minecraftpe/Documents/games/com.mojang/Screenshots`.
 
-If you need to export only specific content, you can achive that with filtering
-keys:
+If you need to export only specific content, you can achive that with the 
+filtering options:
 
 ```shell
 ios-backup export <ios_backup> <export_path> \
@@ -63,7 +72,8 @@ ios-backup export <ios_backup> <export_path> \
   --path Documents/games/com.mojang/minecraftWorlds
 ```
 
-All values are interpreted as prefixes, full match is not required.
+By default, all values are interpreted as prefixes, but if you supply `--like-syntax` option, you can use any expression acceptable in [SQLite LIKE
+clause](https://www.sqlitetutorial.net/sqlite-like/) for that field.
 
 ### Other options
 `--ignore-missing` – do not fail on missing files (those defined in the
@@ -109,7 +119,7 @@ CREATE TABLE Files (
 ```
 
 After you realized your specific needs, you can export your slice of content
-or process it in other way.
+or process it in other ways.
 
 Export content based on a specific query:
 
@@ -155,6 +165,24 @@ for record in Backup.parse(rows):
         # Do something with the data.
 ```
 
+### Inspect backup content
+
+```bash
+# Print basic info about the backup:
+ios-backup inspect info <backup_path>
+
+# List apps or domains present in the backup:
+ios-backup inspect apps|domains <backup_path>
+
+# List namespaces within a domain
+ios-backup inspect namespaces <domain> <backup_path>
+
+# Print table of files within the backup filtered by specified properties:
+ios-backup inspect files [filters] <backup_path>
+```
+
+The accepted filters and syntax are the same as for `export` command.
+
 ## Progress bar
 
 Export usually runs quite fast on SSD storage, but may take longer on HDDs.
@@ -163,8 +191,9 @@ To get a sense of export progress, you can install
 
 `pip install tqdm`
 
-Tqdm is not made a package dependency, which means you need to install it
-separately. If tqdm is found in the executing Python environment and if
+Tqdm is not made a package dependency, which means it will not be pulled
+automatically and you'll need to install it
+manually. If tqdm is found in the executing Python environment and if
 `total_count` is provided to `Backup.export()` (true for CLI use),
 it will be used to produce progress bars in the terminal interface.
 
